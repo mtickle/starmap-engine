@@ -79,7 +79,7 @@ async function runTextureJob(jobType) {
 
         const { data, error } = await supabase.storage
             .from('planet-textures')
-            .upload(`generated/${baseName}`, imageBuffer, {
+            .upload(`${baseName}`, imageBuffer, {
                 contentType: 'image/jpeg',
                 upsert: true
             });
