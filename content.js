@@ -45,7 +45,6 @@ async function generateWithRetry(requestAction, maxRetries = 3) {
 }
 
 async function runTextureJob(jobType) {
-    // FIX 1: Referenced the correct dictionary
     const prompt = PLANET_PROMPTS[jobType];
     if (!prompt) {
         console.error(`❌ Invalid job type: ${jobType}`);
@@ -72,34 +71,26 @@ async function runTextureJob(jobType) {
         const base64Data = imagePart.inlineData.data;
         const imageBuffer = Buffer.from(base64Data, 'base64');
 
-        // FIX 2: Sanitize file name and set target directory
+        // Safely declare variables before any logging or uploading occurs
         const safeName = jobType.toLowerCase().replace(/\s+/g, '_');
-        const dirPath = './public/textures';
-        const fileName = `${dirPath}/${safeName}_${Date.now()}.jpg`;
+        const baseName = `${safeName}_${Date.now()}.jpg`;
 
-        // FIX 3: Ensure the directory exists before saving
-        await mkdir(dirPath, { recursive: true });
+        console.log(`☁️ Uploading ${baseName} to Supabase Storage...`);
 
-        await writeFile(fileName, imageBuffer);
-        console.log(`✅ Saved locally as ${fileName}`);
+        const { data, error } = await supabase.storage
+            .from('planet-textures')
+            .upload(`generated/${baseName}`, imageBuffer, {
+                contentType: 'image/jpeg',
+                upsert: true
+            });
 
-        // ☁️ Uploading to Supabase Storage (Commented out for local workflow)
-        // console.log(`☁️ Uploading to Supabase Storage...`);
-        // const { data, error } = await supabase.storage
-        //     .from('planet-textures')
-        //     .upload(`generated/${fileName.split('/').pop()}`, imageBuffer, {
-        //         contentType: 'image/jpeg',
-        //         upsert: true
-        //     });
-
-        // if (error) throw new Error(`Supabase Upload Failed: ${error.message}`);
-        // console.log(`🎉 Success! Uploaded to Supabase at path: ${data.path}\n`);
+        if (error) throw new Error(`Supabase Upload Failed: ${error.message}`);
+        console.log(`🎉 Success! Cloud path: ${data.path}\n`);
 
     } catch (error) {
         console.error("❌ ERROR generating texture:", error);
     }
 }
-
 // Execution block
 const args = process.argv.slice(2);
 const requestedType = args.join(" ");
