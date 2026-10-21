@@ -1,0 +1,17 @@
+{
+  "name": "starmap-engine",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@google/genai": "^2.30.0",
+    "@supabase/supabase-js": "^2.118.0",
+    "dotenv": "^18.0.8",
+    "pngjs": "^7.0.0",
+    "replicate": "^1.4.0",
+    "simplex-noise": "^4.0.3"
+  },
+  "allowScripts": {
+    "@google/genai@2.30.0": true,
+    "protobufjs@7.6.6": true
+  }
+}
